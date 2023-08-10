@@ -1,5 +1,7 @@
-import { DynamoDBClient, ListTablesCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ListTablesCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import LoginForm from "@/components/LoginForm";
+import bcrypt from "bcryptjs";
+import { v4 as uuid } from "uuid";
 
 const client = new DynamoDBClient({
   region: "eu-north-1",
@@ -8,6 +10,29 @@ const client = new DynamoDBClient({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
   },
 });
+
+async function createUser(username: string, plaintextPassword: string) {
+  // Generate a salt and hash the password
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(plaintextPassword, salt);
+
+  // Put the user data in DynamoDB
+  const command = new PutItemCommand({
+    TableName: "Users",
+    Item: {
+      userId: { S: uuid() },
+      username: { S: username },
+      password: { S: hashedPassword },
+    },
+  });
+
+  try {
+    const results = await client.send(command);
+    console.log(results);
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 export default function Home() {
   async function listTables() {

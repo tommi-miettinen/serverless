@@ -1,10 +1,9 @@
 import axios from "axios";
-import bcrypt from "bcryptjs";
 import { v4 as uuid } from "uuid";
 
-const getUsers = async (req: any, res: any) => {
+const getTodos = async (req: any, res: any) => {
   try {
-    const response = await axios.get("https://h0ug3s28wc.execute-api.eu-north-1.amazonaws.com/test/users");
+    const response = await axios.get("https://h0ug3s28wc.execute-api.eu-north-1.amazonaws.com/test/todos");
     res.status(200).json(response.data);
   } catch (error: any) {
     console.error("Error fetching users:", error);
@@ -13,20 +12,14 @@ const getUsers = async (req: any, res: any) => {
   }
 };
 
-const createUser = async (req: any, res: any) => {
+const createTodo = async (req: any, res: any) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ error: "Required user details are missing." });
-    }
+    const { content } = req.body;
 
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
-
-    const response = await axios.post("https://h0ug3s28wc.execute-api.eu-north-1.amazonaws.com/test/users", {
-      userId: uuid(),
-      username,
-      password: hashedPassword,
+    const response = await axios.post("https://h0ug3s28wc.execute-api.eu-north-1.amazonaws.com/test/todos", {
+      todoId: uuid(),
+      content,
+      completed: false,
     });
 
     res.status(200).json(response.data);
@@ -40,10 +33,10 @@ const createUser = async (req: any, res: any) => {
 export default async function handler(req: any, res: any) {
   switch (req.method) {
     case "GET":
-      return getUsers(req, res);
+      return getTodos(req, res);
 
     case "POST":
-      return createUser(req, res);
+      return createTodo(req, res);
 
     default:
       res.setHeader("Allow", ["GET", "POST"]);

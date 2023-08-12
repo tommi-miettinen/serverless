@@ -78,7 +78,7 @@ export const deleteTodo = async (event) => {
 export const updateTodo = async (event) => {
   try {
     const todoId = event.pathParameters.todoId;
-    const updatedFields = JSON.parse(event.body);
+    const todo = JSON.parse(event.body);
 
     if (!todoId) {
       return {
@@ -87,42 +87,22 @@ export const updateTodo = async (event) => {
       };
     }
 
-    let updateExpression = "SET";
-    let expressionAttributeNames = {};
-    let expressionAttributeValues = {};
-    let first = true;
-
-    for (const [key, value] of Object.entries(updatedFields)) {
-      if (!first) {
-        updateExpression += ",";
-      }
-      updateExpression += ` #${key} = :${key}`;
-      expressionAttributeNames[`#${key}`] = key;
-      expressionAttributeValues[`:${key}`] = value; // Now, directly setting the value
-      first = false;
-    }
-
     const params = {
       TableName: "Todos",
-      Key: {
-        todoId: { S: todoId },
-      },
-      UpdateExpression: updateExpression,
-      ExpressionAttributeNames: expressionAttributeNames,
-      ExpressionAttributeValues: expressionAttributeValues,
+      Item: marshall(todo),
     };
 
-    await client.send(new UpdateItemCommand(params));
+    await client.send(new PutItemCommand(params));
 
     return {
       statusCode: 200,
-      body: "Todo patched successfully",
+      body: "Updated Todo",
     };
   } catch (error) {
     console.error(error);
     return {
       statusCode: 500,
-      body: "Failed to patch Todo",
+      body: JSON.stringify({ todoId: event.pathParameters, todo: event.body }),
     };
   }
 };

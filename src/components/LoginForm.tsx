@@ -91,7 +91,7 @@ const LoginForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => voi
           onChange={(e) => setUsername(e.target.value)}
           type="text"
           id="username"
-          className="bg-gray-800  text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          className="autofill:bg-gray-800 bg-gray-800  text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           required
         />
       </div>
@@ -104,7 +104,7 @@ const LoginForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => voi
           onChange={(e) => setPassword(e.target.value)}
           type="password"
           id="password"
-          className="bg-gray-800  text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          className="autofill:bg-gray-800 bg-gray-800 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           required
         />
       </div>

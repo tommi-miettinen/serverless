@@ -18,7 +18,7 @@ export interface User {
 }
 
 export interface Todo {
-  id: string;
+  todoId: string;
   content: string;
   completed: boolean;
   userId?: string;

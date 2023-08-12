@@ -4,10 +4,12 @@ import { Todo } from "@/types";
 
 interface TodoState {
   todos: Todo[];
+  editingTodoId: string;
 }
 
 export const useTodoStore = create<TodoState>(() => ({
   todos: [],
+  editingTodoId: "",
 }));
 
 export const createTodo = async (content: string) => {
@@ -29,4 +31,16 @@ export const getTodos = async () => {
     const result = await axios.get("/api/todos");
     useTodoStore.setState({ todos: result.data });
   } catch (err) {}
+};
+
+export const setEditingTodoId = (todoId: string) => useTodoStore.setState({ editingTodoId: todoId });
+
+export const editTodo = async (todo: Todo) => {
+  try {
+    await axios.patch(`/api/todos/${todo.todoId}`, todo);
+
+    useTodoStore.setState({ todos: useTodoStore.getState().todos.map((t) => (t.todoId === todo.todoId ? todo : t)) });
+  } catch (err) {
+    console.log(err);
+  }
 };

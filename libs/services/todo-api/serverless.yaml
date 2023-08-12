@@ -37,7 +37,7 @@ functions:
           method: delete
 
   patchTodo:
-    handler: todos.patchTodo
+    handler: todos.updateTodo
     events:
       - http:
           path: todos/{todoId}

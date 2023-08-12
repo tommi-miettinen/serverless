@@ -3,22 +3,12 @@ import LoginForm from "@/components/LoginForm";
 import Todos from "@/components/Todos";
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { setUser, useUserStore, logout } from "../store/userStore";
+import { setUser, useUserStore, logout, fetchUser } from "@/store/userStore";
 import Drawer from "@/components/Drawer";
 import * as Popover from "@radix-ui/react-popover";
 import useWindowSize from "@/hooks/useWindowSize";
+import Avatar from "@/components/Avatar";
 import "../app/globals.css";
-
-const Avatar = ({ onClick, displayLetter }: { onClick: (e: React.MouseEvent<HTMLDivElement>) => void; displayLetter: string }) => {
-  return (
-    <div
-      onClick={onClick}
-      className="cursor-pointer hover:bg-indigo-400 h-[36px] w-[36px] rounded-full bg-indigo-300 flex items-center text-black justify-center"
-    >
-      {displayLetter}
-    </div>
-  );
-};
 
 export default function Home({ userData }: { userData: any }) {
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -31,7 +21,7 @@ export default function Home({ userData }: { userData: any }) {
   const isMobile = useWindowSize().width < 640;
 
   return (
-    <main className="bg-black min-h-screen h-screen flex flex-col">
+    <main className="bg-zinc-950 min-h-screen h-screen flex flex-col">
       <nav className="p-4">
         {user && (
           <Popover.Root>
@@ -58,11 +48,15 @@ export default function Home({ userData }: { userData: any }) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const response = await axios.get("http://localhost:3000/api/user", {
       withCredentials: true,
+      headers: {
+        Cookie: context.req.headers.cookie,
+      },
     });
+
     const userData = response.data;
     return {
       props: {

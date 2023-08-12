@@ -4,11 +4,13 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: eu-north-1
-
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
       Resource:
         - arn:aws:dynamodb:eu-north-1:212750940613:table/Todos
 
@@ -33,3 +35,10 @@ functions:
       - http:
           path: todos/{todoId}
           method: delete
+
+  patchTodo:
+    handler: todos.patchTodo
+    events:
+      - http:
+          path: todos/{todoId}
+          method: patch

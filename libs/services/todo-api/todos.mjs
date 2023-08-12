@@ -74,3 +74,55 @@ export const deleteTodo = async (event) => {
     };
   }
 };
+
+export const updateTodo = async (event) => {
+  try {
+    const todoId = event.pathParameters.todoId;
+    const updatedFields = JSON.parse(event.body);
+
+    if (!todoId) {
+      return {
+        statusCode: 400,
+        body: "todoId is required",
+      };
+    }
+
+    let updateExpression = "SET";
+    let expressionAttributeNames = {};
+    let expressionAttributeValues = {};
+    let first = true;
+
+    for (const [key, value] of Object.entries(updatedFields)) {
+      if (!first) {
+        updateExpression += ",";
+      }
+      updateExpression += ` #${key} = :${key}`;
+      expressionAttributeNames[`#${key}`] = key;
+      expressionAttributeValues[`:${key}`] = value; // Now, directly setting the value
+      first = false;
+    }
+
+    const params = {
+      TableName: "Todos",
+      Key: {
+        todoId: { S: todoId },
+      },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeNames: expressionAttributeNames,
+      ExpressionAttributeValues: expressionAttributeValues,
+    };
+
+    await client.send(new UpdateItemCommand(params));
+
+    return {
+      statusCode: 200,
+      body: "Todo patched successfully",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      statusCode: 500,
+      body: "Failed to patch Todo",
+    };
+  }
+};

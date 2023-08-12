@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
 import SignWithGoogleButton from "./SignWithGoogleButton";
 import axios from "axios";
-import Cookies from "js-cookie";
+import { login } from "../store/userStore";
 
 const SignUpForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => void }) => {
   const [username, setUsername] = useState("");
@@ -36,7 +36,7 @@ const SignUpForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => vo
           onChange={(e) => setUsername(e.target.value)}
           type="text"
           id="username"
-          className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          className="bg-gray-800  text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           required
         />
       </div>
@@ -49,11 +49,14 @@ const SignUpForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => vo
           onChange={(e) => setPassword(e.target.value)}
           type="password"
           id="password"
-          className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          className="bg-gray-800  text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           required
         />
       </div>
-      <button onClick={handleSignUp} className="px-5 py-2.5 bg-white hover:bg-white/90 text-black w-full rounded-lg mt-4">
+      <button
+        onClick={handleSignUp}
+        className="px-5 py-2.5 bg-indigo-300 hover:bg-opacity-90 text-black font-medium w-full rounded-lg mt-4"
+      >
         Luo tili
       </button>
       <span className="text-sm">
@@ -69,15 +72,6 @@ const SignUpForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => vo
 const LoginForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => void }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleLogin = async () => {
-    try {
-      const result = await axios.post("/api/auth/login", { username, password });
-      Cookies.set("accessToken", result.data.AuthenticationResult.AccessToken, { path: "/" });
-    } catch (error) {
-      console.error("Error logging up:", error);
-    }
-  };
 
   const props = useSpring({
     from: { opacity: 0 },
@@ -114,7 +108,10 @@ const LoginForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => voi
           required
         />
       </div>
-      <button onClick={handleLogin} className="px-5 py-2.5 bg-indigo-300 hover:bg-opacity-90 text-black font-medium w-full rounded-lg mt-4">
+      <button
+        onClick={() => login({ username, password })}
+        className="px-5 py-2.5 bg-indigo-300 hover:bg-opacity-90 text-black font-medium w-full rounded-lg mt-4"
+      >
         Kirjaudu
       </button>
       <SignWithGoogleButton />

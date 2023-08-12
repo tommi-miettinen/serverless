@@ -1,0 +1,15 @@
+service: signup
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+
+functions:
+  signUpHandler:
+    handler: signUp.handler
+    events:
+      - cognitoUserPool:
+          pool: prismaws
+          trigger: PreSignUp
+          existing: true

@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.1.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.388.0",
+    "@radix-ui/react-popover": "^1.0.6",
     "@react-spring/web": "^9.7.3",
     "@types/node": "20.4.9",
     "@types/react": "18.2.20",
@@ -19,6 +20,7 @@
     "aws-crt": "^1.17.1",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
+    "cookie": "^0.5.0",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.13",
     "js-cookie": "^3.0.5",
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/cookie": "^0.5.1",
     "@types/js-cookie": "^3.0.3",
     "@types/uuid": "^9.0.2"
   }

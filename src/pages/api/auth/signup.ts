@@ -18,7 +18,6 @@ export default async function handler(req: any, res: any) {
   }
 
   const { username, password } = req.body;
-  console.log(username, password);
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "Username and password are required." });
   }

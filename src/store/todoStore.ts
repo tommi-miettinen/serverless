@@ -1,13 +1,6 @@
 import { create } from "zustand";
-import { v4 as uuid } from "uuid";
 import axios from "axios";
-
-interface Todo {
-  id: string;
-  content: string;
-  completed: boolean;
-  userId?: string;
-}
+import { Todo } from "@/types";
 
 interface TodoState {
   todos: Todo[];

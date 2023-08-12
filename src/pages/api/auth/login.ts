@@ -1,7 +1,6 @@
 import { InitiateAuthCommand, InitiateAuthCommandInput } from "@aws-sdk/client-cognito-identity-provider";
 import client from "../../../services/cognito";
 import crypto from "crypto";
-import Cookies from "js-cookie";
 
 function computeSecretHash(username: string, clientID: string, clientSecret: string) {
   return crypto
@@ -20,8 +19,6 @@ export default async function handler(req: any, res: any) {
 
   const { username, password } = req.body;
 
-  console.log("LOGGING IN");
-
   const params: InitiateAuthCommandInput = {
     AuthFlow: "USER_PASSWORD_AUTH",
     ClientId: "5o7brqfj045hijqtko2vhnvfmi",
@@ -31,10 +28,19 @@ export default async function handler(req: any, res: any) {
       PASSWORD: password,
     },
   };
-  console.log(params);
 
   try {
     const response = await client.send(new InitiateAuthCommand(params));
+
+    const id_token = response.AuthenticationResult?.IdToken;
+    const access_token = response.AuthenticationResult?.AccessToken;
+    const refresh_token = response.AuthenticationResult?.RefreshToken;
+
+    res.setHeader("Set-Cookie", [
+      `idToken=${id_token}; path=/; HttpOnly; Secure; SameSite=Lax`,
+      `accessToken=${access_token}; path=/; HttpOnly; Secure; SameSite=Lax`,
+      `refreshToken=${refresh_token}; path=/; HttpOnly; Secure; SameSite=Lax`,
+    ]);
     res.send(response);
   } catch (error: any) {
     console.error("Error in /api/login handler:", error);

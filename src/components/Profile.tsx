@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useUserStore } from "@/store/userStore";
+import { useUserStore, updateUser, getAvatarUrl } from "@/store/userStore";
 import Avatar from "@/components/Avatar";
 import ReactCrop, { type Crop } from "react-image-crop";
 import FileInput from "./FileInput";
@@ -27,11 +27,35 @@ const getCroppedImg = (imageSrc: HTMLImageElement, crop: Crop): Promise<Blob> =>
   });
 };
 
+const uploadToServer = async (imageFile: File) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  try {
+    const response = await fetch("/api/images", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to upload image");
+    }
+
+    const responseData = await response.json();
+
+    return responseData;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
 const Profile = () => {
+  const avatarUrl = getAvatarUrl() || "";
   const user = useUserStore((state) => state.user);
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [croppedImageUrl, setCroppedImageUrl] = useState<string>("");
+  const [croppedImageUrl, setCroppedImageUrl] = useState<string>(avatarUrl);
+  const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const [crop, setCrop] = useState<Crop>();
 
   const imageRef = useRef(null);
@@ -56,6 +80,11 @@ const Profile = () => {
     const blob = await getCroppedImg(imageRef.current, crop);
     const url = URL.createObjectURL(blob);
     setCroppedImageUrl(url);
+    setCroppedImage(
+      new File([blob], "cropped-image.jpeg", {
+        type: "image/jpeg",
+      })
+    );
   };
 
   const onImageLoaded = () => {
@@ -70,6 +99,15 @@ const Profile = () => {
       width: cropContainer.clientWidth,
       height: cropContainer.clientHeight,
     });
+  };
+
+  const handleUpload = async () => {
+    try {
+      const response = await uploadToServer(croppedImage as File);
+      await updateUser({ ...user, UserAttributes: [{ Name: "custom:avatarUrl", Value: response.imageUrl }] });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -98,7 +136,9 @@ const Profile = () => {
           </ReactCrop>
         )}
       </div>
-      <button className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">Save</button>
+      <button onClick={handleUpload} className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">
+        Save
+      </button>
     </div>
   );
 };

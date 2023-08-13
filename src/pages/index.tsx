@@ -23,6 +23,15 @@ export default function Home({ userData }: { userData: any }) {
 
   const isMobile = useWindowSize().width < 640;
 
+  const getAvatarUrl = () => {
+    console.log(user);
+    const attr = user?.UserAttributes.find((attr) => attr.Name === "custom:avatarUrl");
+
+    if (!attr) return;
+
+    return attr.Value;
+  };
+
   return (
     <Fragment>
       <main className="bg-zinc-950 min-h-screen h-screen flex flex-col">
@@ -30,7 +39,7 @@ export default function Home({ userData }: { userData: any }) {
           {user && (
             <Popover.Root>
               <Popover.Trigger>
-                <Avatar onClick={() => setOptionsOpen((prev) => !prev)} displayLetter="T" />
+                <Avatar imageUrl={getAvatarUrl()} onClick={() => setOptionsOpen((prev) => !prev)} displayLetter="T" />
               </Popover.Trigger>
               {!isMobile && (
                 <Popover.Portal>

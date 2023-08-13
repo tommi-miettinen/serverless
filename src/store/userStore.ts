@@ -37,3 +37,20 @@ export const fetchUser = async () => {
     console.log(err);
   }
 };
+
+export const updateUser = async (user: User) => {
+  try {
+    const response = await axios.patch("http://localhost:3000/api/user", user, {
+      withCredentials: true,
+    });
+    setUser(response.data.user);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getAvatarUrl = () => {
+  const attr = useUserStore.getState().user?.UserAttributes.find((attr) => attr.Name === "custom:avatarUrl");
+  if (!attr) return;
+  return attr.Value;
+};

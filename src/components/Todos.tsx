@@ -4,6 +4,7 @@ import { useTodoStore, getTodos, createTodo, deleteTodo, setEditingTodoId, editT
 import { Todo } from "@/types";
 
 const Todo = ({ todo }: { todo: Todo }) => {
+  const [content, setContent] = useState(todo.content);
   const editingTodoId = useTodoStore((state) => state.editingTodoId);
   const isEditing = todo.todoId === editingTodoId;
   const labelRef = useRef(null);
@@ -22,25 +23,46 @@ const Todo = ({ todo }: { todo: Todo }) => {
   const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLLabelElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      setEditingTodoId("");
+      //@ts-ignore
+      editTodo({ ...todo, content: e.target.textContent || "" });
     }
   };
 
-  console.log(todo);
+  const handleContentChange = (e: React.FocusEvent<HTMLLabelElement>) => {
+    setEditingTodoId("");
+    editTodo({ ...todo, content: e.target.textContent || "" });
+  };
 
   return (
     <div className="rounded-lg p-3 font-medium capitalize flex   w-full h-[50px] group cursor-pointer" key={todo.todoId}>
       <div className="flex items-center mr-4 w-full">
-        <input id={todo.todoId} type="checkbox" checked={todo.completed} className="w-5 h-5 text-indigo-400 rounded bg-transparent" />
-        <label
+        <input
           onClick={() => editTodo({ ...todo, completed: !todo.completed })}
-          onKeyDown={handleEnterKeyDown}
-          ref={labelRef}
-          contentEditable={isEditing}
-          htmlFor={todo.todoId}
-          className={`w-full cursor-pointer ml-2 text-base text-white ${isEditing && "bg-gray-700"}`}
-        >
-          {todo.content}
-        </label>
+          id={todo.todoId}
+          type="checkbox"
+          checked={todo.completed}
+          className="w-5 h-5 text-indigo-400 rounded bg-transparent"
+        />
+        {isEditing ? (
+          <label
+            onBlur={handleContentChange}
+            onKeyDown={handleEnterKeyDown}
+            ref={labelRef}
+            contentEditable={true}
+            className={`w-full cursor-pointer ml-2 text-base text-white bg-gray-700`}
+          >
+            {content}
+          </label>
+        ) : (
+          <label
+            onClick={() => editTodo({ ...todo, completed: !todo.completed })}
+            htmlFor={todo.todoId}
+            className={`w-full cursor-pointer ml-2 text-base text-white`}
+          >
+            {content}
+          </label>
+        )}
       </div>
 
       <button
@@ -94,10 +116,9 @@ const Todos = () => {
     <div className="flex flex-col bg-black rounded-xl h-full sm:h-[600px] overflow-auto gap-2 p-4 sm:p-8 w-full sm:w-[500px]  ">
       <div className=" scrollbar-thumb-indigo-400 scrollbar-thin flex flex-col gap-1 overflow-auto">
         {todos.map((todo) => (
-          <Todo todo={todo} />
+          <Todo key={todo.todoId} todo={todo} />
         ))}
       </div>
-
       <input
         type="text"
         value={input}

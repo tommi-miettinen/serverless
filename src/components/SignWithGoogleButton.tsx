@@ -20,7 +20,7 @@ export function Google(props: JSX.IntrinsicElements["svg"]) {
 
 const SignWithGoogleButton = () => {
   return (
-    <button className="bg-black border border-gray-700  w-full flex px-5 py-2.5 items-center justify-center rounded-lg gap-2 hover:bg-opacity-80">
+    <button className="bg-black border border-gray-700 text-white w-full flex px-5 py-2.5 items-center justify-center rounded-lg gap-2 hover:bg-opacity-80">
       <Google className="w-4 h-4" />
       <span>Sign in with Google</span>
     </button>

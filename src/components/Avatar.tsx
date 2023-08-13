@@ -1,10 +1,25 @@
-const Avatar = ({ onClick, displayLetter }: { onClick: (e: React.MouseEvent<HTMLDivElement>) => void; displayLetter: string }) => {
+import { twMerge } from "tailwind-merge";
+
+interface AvatarProps {
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  displayLetter?: string;
+  className?: string;
+  imageUrl?: string;
+}
+
+const Avatar = ({ onClick, displayLetter, className, imageUrl }: AvatarProps) => {
+  const backgroundStyle = imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover" } : {};
+
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer hover:bg-indigo-400 h-[36px] w-[36px] rounded-full bg-indigo-300 flex items-center text-black justify-center"
+      style={backgroundStyle}
+      className={twMerge(
+        "cursor-pointer hover:bg-indigo-400 h-[36px] w-[36px] rounded-full bg-indigo-300 flex items-center justify-center text-black",
+        className
+      )}
     >
-      {displayLetter}
+      {!imageUrl && displayLetter}
     </div>
   );
 };

@@ -59,7 +59,7 @@ const SignUpForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => vo
       >
         Luo tili
       </button>
-      <span className="text-sm">
+      <span className="text-sm text-white">
         Already have an account?
         <span className="font-semibold ml-1 underline cursor-pointer" onClick={() => setSigningUp(false)}>
           Sign In
@@ -115,7 +115,7 @@ const LoginForm = ({ setSigningUp }: { setSigningUp: (signingUp: boolean) => voi
         Kirjaudu
       </button>
       <SignWithGoogleButton />
-      <span className="text-sm">
+      <span className="text-sm text-white">
         Dont have an account?
         <span className="font-semibold ml-1 underline cursor-pointer" onClick={() => setSigningUp(true)}>
           Sign Up

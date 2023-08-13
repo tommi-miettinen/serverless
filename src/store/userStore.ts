@@ -32,7 +32,7 @@ export const fetchUser = async () => {
     const response = await axios.get("http://localhost:3000/api/user", {
       withCredentials: true,
     });
-    setUser(response.data);
+    setUser(response.data.user);
   } catch (err) {
     console.log(err);
   }

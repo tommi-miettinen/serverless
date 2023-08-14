@@ -1,14 +1,13 @@
-"use client";
 import { useEffect } from "react";
-import { Drawer } from "vaul";
+import * as Dialog from "@radix-ui/react-dialog";
 
-interface DrawerProps {
+interface OverlayProps {
   open: boolean;
   dismiss: () => void;
   children: JSX.Element;
 }
 
-export default ({ open, dismiss, children }: DrawerProps) => {
+const Overlay = ({ open, dismiss, children }: OverlayProps) => {
   useEffect(() => {
     if (open) {
       history.pushState({ overlay: true }, "");
@@ -18,7 +17,9 @@ export default ({ open, dismiss, children }: DrawerProps) => {
           dismiss();
         }
       };
+
       window.addEventListener("popstate", handlePopState);
+
       return () => {
         window.removeEventListener("popstate", handlePopState);
       };
@@ -26,13 +27,13 @@ export default ({ open, dismiss, children }: DrawerProps) => {
   }, [open, dismiss]);
 
   return (
-    <Drawer.Root open={open} shouldScaleBackground>
-      <Drawer.Portal>
-        <Drawer.Overlay onClick={dismiss} className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="shadow-none flex flex-col rounded-t-[10px] h- mt-24 fixed bottom-0 left-0 right-0">
-          {children}
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+    <Dialog.Root open={open}>
+      <Dialog.Portal>
+        <Dialog.Overlay onClick={() => dismiss} className="fixed inset-0 w-screen h-screen bg-black/40 grid place-items-center" />
+        <Dialog.Content className="fixed inset-0">{children}</Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 };
+
+export default Overlay;

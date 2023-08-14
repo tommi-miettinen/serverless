@@ -27,6 +27,7 @@
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.13",
     "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.1",
     "multer": "^1.4.5-lts.1",
     "next": "13.4.13",
     "postcss": "8.4.27",

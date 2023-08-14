@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import axios from "axios";
 import { Todo } from "@/types";
+import { v4 as uuid } from "uuid";
+import { getUserId } from "./userStore";
 
 interface TodoState {
   todos: Todo[];
@@ -14,9 +16,14 @@ export const useTodoStore = create<TodoState>(() => ({
 
 export const createTodo = async (content: string) => {
   try {
-    const result = await axios.post("/api/todos", { content });
+    const userId = getUserId();
+    if (!userId) throw new Error("UserId missing");
+
+    const result = await axios.post("/api/todos", { todoId: uuid(), content, completed: false, userId });
     useTodoStore.setState({ todos: [...useTodoStore.getState().todos, result.data] });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export const deleteTodo = async (todoId: string) => {
@@ -29,6 +36,7 @@ export const deleteTodo = async (todoId: string) => {
 export const getTodos = async () => {
   try {
     const result = await axios.get("/api/todos");
+
     useTodoStore.setState({ todos: result.data });
   } catch (err) {}
 };

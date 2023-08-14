@@ -8,6 +8,8 @@ const getUser: NextApiHandler = async (req, res) => {
     const cookies = cookie.parse(req.headers.cookie || "");
     const accessToken = cookies.accessToken;
 
+    console.log(accessToken);
+
     const getUserCommand = new GetUserCommand({
       AccessToken: accessToken,
     });

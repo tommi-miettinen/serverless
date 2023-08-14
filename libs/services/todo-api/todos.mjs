@@ -1,14 +1,58 @@
 import { DynamoDBClient, ScanCommand, PutItemCommand, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
+import jwt from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
+
+const COGNITO_POOL_URL = "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_x7Uj50IG9";
+
+const jwks = jwksClient({
+  jwksUri: `${COGNITO_POOL_URL}/.well-known/jwks.json`,
+});
 
 const client = new DynamoDBClient({
   region: "eu-north-1",
 });
 
-export const getTodos = async () => {
+export const auth = async (event) => {
+  const token = event.authorizationToken;
+  const decoded = jwt.decode(token, { complete: true });
+
+  const key = await jwks.getSigningKey(decoded.header.kid);
+  const signingKey = key.getPublicKey();
+
+  const verifiedToken = jwt.verify(token, signingKey);
+  const userId = verifiedToken.sub;
+
+  return generatePolicy(userId, "Allow", event.methodArn, token);
+};
+
+const generatePolicy = (principalId, effect, resource) => {
+  const policy = {
+    principalId,
+    policyDocument: {
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Action: "execute-api:Invoke",
+          Effect: effect,
+          Resource: resource,
+        },
+      ],
+    },
+  };
+
+  return policy;
+};
+
+export const getTodos = async (event) => {
   try {
+    const userId = event.requestContext.authorizer.principalId;
     const params = {
       TableName: "Todos",
+      FilterExpression: "userId = :userId",
+      ExpressionAttributeValues: {
+        ":userId": { S: userId },
+      },
     };
     const result = await client.send(new ScanCommand(params));
     const transformedItems = result.Items.map((item) => unmarshall(item));
@@ -20,7 +64,7 @@ export const getTodos = async () => {
     console.error(error);
     return {
       statusCode: 500,
-      body: "Failed to fetch todos",
+      body: JSON.stringify(event),
     };
   }
 };

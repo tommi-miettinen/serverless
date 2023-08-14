@@ -1,0 +1,10 @@
+service: auth
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+
+functions:
+  auth:
+    handler: handler.handler

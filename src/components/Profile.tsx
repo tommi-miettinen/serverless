@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useUserStore, updateUser, getAvatarUrl } from "@/store/userStore";
 import Avatar from "@/components/Avatar";
-import ReactCrop, { type Crop } from "react-image-crop";
+import ReactCrop, { makeAspectCrop, type Crop } from "react-image-crop";
 import FileInput from "./FileInput";
-import * as Dialog from "@radix-ui/react-dialog";
 import "react-image-crop/dist/ReactCrop.css";
+import * as Dialog from "@radix-ui/react-dialog";
 
 const getCroppedImg = (imageSrc: HTMLImageElement, crop: Crop): Promise<Blob> => {
   const canvas = document.createElement("canvas");
@@ -49,16 +49,21 @@ const uploadToServer = async (imageFile: File) => {
   }
 };
 
-const Profile = () => {
+interface ProfileProps {
+  onSave: () => void;
+}
+
+const Profile = ({ onSave }: ProfileProps) => {
   const avatarUrl = getAvatarUrl() || "";
   const user = useUserStore((state) => state.user);
   const [image, setImage] = useState<File | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [croppedImageUrl, setCroppedImageUrl] = useState<string>(avatarUrl);
   const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const [crop, setCrop] = useState<Crop>();
 
-  const imageRef = useRef(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const cropContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -66,11 +71,9 @@ const Profile = () => {
       const url = URL.createObjectURL(image);
       setImageUrl(url);
 
-      return () => {
-        URL.revokeObjectURL(url);
-      };
+      return () => URL.revokeObjectURL(url);
     }
-  }, [image]);
+  }, [image, imageLoaded]);
 
   if (!user) return null;
 
@@ -92,12 +95,19 @@ const Profile = () => {
 
     if (!cropContainer) return;
 
+    const w = cropContainer.clientWidth;
+    const h = cropContainer.clientHeight;
+
+    const height = w > h ? h : w;
+    const width = w < h ? w : h;
+
+    setImageLoaded(true);
     setCrop({
       unit: "px",
       x: 0,
       y: 0,
-      width: cropContainer.clientWidth,
-      height: cropContainer.clientHeight,
+      width,
+      height,
     });
   };
 
@@ -110,33 +120,37 @@ const Profile = () => {
     }
   };
 
+  const handleSave = async () => {
+    await handleUpload();
+    setTimeout(() => onSave(), 1000);
+  };
+
   return (
-    <div className="flex flex-col border border-gray-700 bg-zinc-950 w-[500px] rounded-lg text-white p-8 gap-8">
+    <div className="flex flex-col bg-zinc-950 w-screen sm:w-[500px] text-white p-4 sm:p-8 gap-8">
       <h3 className="text-2xl font-bold">{user?.Username}</h3>
-      <div className="flex justify-between items-center">
-        <FileInput onFileChange={(file) => setImage(file)}>
-          <button className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">Change avatar</button>
-        </FileInput>
-        <Avatar imageUrl={croppedImageUrl} className="w-12 h-12 pointer-events-none" />
-      </div>
-      <div
-        ref={cropContainerRef}
-        className="h-[150px] w-[150px] flex flex-col items-center justify-center border border-dotted border-gray-300"
-      >
+      <div className="flex flex-col gap-8 border-gray-700">
+        <div className="flex justify-between items-center">
+          <FileInput onFileChange={(file) => setImage(file)}>
+            <button className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">Change avatar</button>
+          </FileInput>
+          <Avatar imageUrl={croppedImageUrl} className="w-12 h-12 pointer-events-none" />
+        </div>
         {imageUrl && (
-          <ReactCrop
-            className="h-full w-full"
-            aspect={1}
-            circularCrop={true}
-            crop={crop}
-            onChange={(c) => setCrop(c)}
-            onComplete={handleOnCropComplete}
-          >
-            <img onLoad={onImageLoaded} ref={imageRef} className="object-contain" src={imageUrl} />
-          </ReactCrop>
+          <div ref={cropContainerRef} className="max-h-[150px] border-gray-300">
+            <ReactCrop
+              className="max-h-[150px] border border-dotted"
+              aspect={1}
+              circularCrop={true}
+              crop={crop}
+              onChange={(c) => setCrop(c)}
+              onComplete={handleOnCropComplete}
+            >
+              <img onLoad={onImageLoaded} ref={imageRef} className="object-fit" src={imageUrl} />
+            </ReactCrop>
+          </div>
         )}
       </div>
-      <button onClick={handleUpload} className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">
+      <button onClick={handleSave} className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">
         Save
       </button>
     </div>

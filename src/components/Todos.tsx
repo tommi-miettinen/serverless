@@ -4,7 +4,6 @@ import { useTodoStore, getTodos, createTodo, deleteTodo, setEditingTodoId, editT
 import { Todo } from "@/types";
 
 const Todo = ({ todo }: { todo: Todo }) => {
-  const [content, setContent] = useState(todo.content);
   const editingTodoId = useTodoStore((state) => state.editingTodoId);
   const isEditing = todo.todoId === editingTodoId;
   const labelRef = useRef(null);
@@ -35,7 +34,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
   };
 
   return (
-    <div className="rounded-lg p-3 font-medium capitalize flex   w-full h-[50px] group cursor-pointer" key={todo.todoId}>
+    <div className="rounded-lg p-3 font-medium capitalize flex w-full h-[50px] group cursor-pointer" key={todo.todoId}>
       <div className="flex items-center mr-4 w-full">
         <input
           onClick={() => editTodo({ ...todo, completed: !todo.completed })}
@@ -50,9 +49,9 @@ const Todo = ({ todo }: { todo: Todo }) => {
             onKeyDown={handleEnterKeyDown}
             ref={labelRef}
             contentEditable={true}
-            className={`w-full cursor-pointer ml-2 text-base text-white bg-gray-700`}
+            className={`w-full cursor-pointer ml-2 text-base text-white`}
           >
-            {content}
+            {todo.content}
           </label>
         ) : (
           <label
@@ -60,13 +59,13 @@ const Todo = ({ todo }: { todo: Todo }) => {
             htmlFor={todo.todoId}
             className={`w-full cursor-pointer ml-2 text-base text-white`}
           >
-            {content}
+            {todo.content}
           </label>
         )}
       </div>
 
       <button
-        className="hidden group-hover:flex items-center justify-center hover:bg-gray-800  h-[30px] w-[30px] p-2 rounded-lg ml-auto"
+        className="sm:hidden group-hover:flex items-center justify-center hover:bg-gray-800  h-[30px] w-[30px] p-2 rounded-lg ml-auto"
         onClick={() => setEditingTodoId(todo.todoId)}
       >
         <svg
@@ -80,7 +79,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
         </svg>
       </button>
       <button
-        className="hidden group-hover:flex items-center justify-center hover:bg-gray-800   h-[30px] w-[30px] p-2 rounded-lg ml-2"
+        className="sm:hidden group-hover:flex items-center justify-center hover:bg-gray-800   h-[30px] w-[30px] p-2 rounded-lg ml-2"
         onClick={() => deleteTodo(todo.todoId)}
       >
         <svg
@@ -113,7 +112,7 @@ const Todos = () => {
   };
 
   return (
-    <div className="flex flex-col bg-black rounded-xl h-full sm:h-[600px] overflow-auto gap-2 p-4 sm:p-8 w-full sm:w-[500px]  ">
+    <div className="flex flex-col bg-black rounded-xl h-full sm:border-zinc-700 sm:border sm:h-[600px] overflow-auto gap-2 p-4 sm:p-8 w-full sm:w-[500px]  ">
       <div className=" scrollbar-thumb-indigo-400 scrollbar-thin flex flex-col gap-1 overflow-auto">
         {todos.map((todo) => (
           <Todo key={todo.todoId} todo={todo} />

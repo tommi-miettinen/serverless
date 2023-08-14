@@ -15,7 +15,7 @@ const Avatar = ({ onClick, displayLetter, className, imageUrl }: AvatarProps) =>
       onClick={onClick}
       style={backgroundStyle}
       className={twMerge(
-        "cursor-pointer hover:bg-indigo-400 h-[36px] w-[36px] rounded-full bg-indigo-300 flex items-center justify-center text-black",
+        "cursor-pointer hover:bg-indigo-400 hover:opacity-80 h-[36px] w-[36px] rounded-full bg-indigo-300 flex items-center justify-center text-black",
         className
       )}
     >

@@ -49,6 +49,12 @@ export const updateUser = async (user: User) => {
   }
 };
 
+export const getUserId = () => {
+  const attr = useUserStore.getState().user?.UserAttributes.find((attr) => attr.Name === "sub");
+  if (!attr) return;
+  return attr.Value;
+};
+
 export const getAvatarUrl = () => {
   const attr = useUserStore.getState().user?.UserAttributes.find((attr) => attr.Name === "custom:avatarUrl");
   if (!attr) return;

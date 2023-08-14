@@ -1,28 +1,35 @@
 import axios from "axios";
-import { v4 as uuid } from "uuid";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next/types";
+import cookie from "cookie";
 
-const baseUrl = "https://zygoej3i38.execute-api.eu-north-1.amazonaws.com/dev/todos";
+const baseUrl = "https://50c3dyk64c.execute-api.eu-north-1.amazonaws.com/dev/todos";
 
-const getTodos: NextApiHandler = async (_, res) => {
+const getTodos: NextApiHandler = async (req, res) => {
   try {
-    const response = await axios.get(baseUrl);
+    const cookies = cookie.parse(req.headers.cookie || "");
+    const accessToken = cookies.accessToken;
+
+    const response = await axios.get(baseUrl, {
+      headers: {
+        Authorization: accessToken,
+      },
+    });
     res.status(200).json(response.data);
   } catch (error: any) {
-    console.error("Error fetching users:", error);
+    console.error("Error fetching todo:", error);
     const status = error.response ? error.response.status : 500;
-    res.status(status).json({ error: "Failed to fetch users." });
+    res.status(status).json({ error: "Failed to fetch todos." });
   }
 };
 
 const createTodo: NextApiHandler = async (req, res) => {
   try {
-    const { content } = req.body;
-
-    const response = await axios.post(baseUrl, {
-      todoId: uuid(),
-      content,
-      completed: false,
+    const cookies = cookie.parse(req.headers.cookie || "");
+    const accessToken = cookies.accessToken;
+    const response = await axios.post(baseUrl, req.body, {
+      headers: {
+        Authorization: accessToken,
+      },
     });
 
     res.status(200).json(response.data);

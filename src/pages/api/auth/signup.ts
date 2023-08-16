@@ -30,11 +30,11 @@ export default async function handler(req: any, res: any) {
     UserAttributes: [
       {
         Name: "name",
-        Value: "Tommi Test",
+        Value: username,
       },
       {
         Name: "email",
-        Value: "tommi.test@email.com",
+        Value: `${username}@email.com`,
       },
     ],
   };

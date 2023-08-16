@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTodoStore, getTodos, createTodo, deleteTodo, setEditingTodoId, editTodo } from "@/store/todoStore";
 import { Todo } from "@/types";
+import Spinner from "./Spinner";
 
 const Todo = ({ todo }: { todo: Todo }) => {
   const editingTodoId = useTodoStore((state) => state.editingTodoId);
@@ -13,18 +14,18 @@ const Todo = ({ todo }: { todo: Todo }) => {
 
     const range = document.createRange();
     range.selectNodeContents(labelRef.current);
-    const sel = window.getSelection();
+    const selection = window.getSelection();
 
-    sel?.removeAllRanges();
-    sel?.addRange(range);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
   }, [isEditing]);
 
   const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLLabelElement>) => {
+    const element = e.target as HTMLLabelElement;
     if (e.key === "Enter") {
       e.preventDefault();
       setEditingTodoId("");
-      //@ts-ignore
-      editTodo({ ...todo, content: e.target.textContent || "" });
+      editTodo({ ...todo, content: element.textContent || "" });
     }
   };
 
@@ -34,14 +35,14 @@ const Todo = ({ todo }: { todo: Todo }) => {
   };
 
   return (
-    <div className="rounded-lg p-3 font-medium capitalize flex w-full h-[50px] group cursor-pointer" key={todo.todoId}>
-      <div className="flex items-center mr-4 w-full">
+    <div className="rounded-lg p-3 font-medium flex items-center w-full h-[50px] group cursor-pointer" key={todo.todoId}>
+      <div className="flex items-center mr-4 w-full gap-4">
         <input
           onClick={() => editTodo({ ...todo, completed: !todo.completed })}
           id={todo.todoId}
           type="checkbox"
           checked={todo.completed}
-          className="w-5 h-5 text-indigo-400 rounded bg-transparent"
+          className="w-5 h-5 text-indigo-400 rounded bg-transparent cursor-pointer"
         />
         {isEditing ? (
           <label
@@ -49,7 +50,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
             onKeyDown={handleEnterKeyDown}
             ref={labelRef}
             contentEditable={true}
-            className={`w-full cursor-pointer ml-2 text-base text-white`}
+            className={`w-full cursor-pointer text-base text-white`}
           >
             {todo.content}
           </label>
@@ -57,7 +58,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
           <label
             onClick={() => editTodo({ ...todo, completed: !todo.completed })}
             htmlFor={todo.todoId}
-            className={`w-full cursor-pointer ml-2 text-base text-white`}
+            className={`w-full cursor-pointer text-base text-white`}
           >
             {todo.content}
           </label>
@@ -65,7 +66,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
       </div>
 
       <button
-        className="sm:hidden group-hover:flex items-center justify-center hover:bg-gray-800  h-[30px] w-[30px] p-2 rounded-lg ml-auto"
+        className="sm:invisible group-hover:visible flex items-center justify-center hover:bg-gray-800  h-[30px] w-[30px] p-2 rounded-lg ml-auto"
         onClick={() => setEditingTodoId(todo.todoId)}
       >
         <svg
@@ -79,7 +80,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
         </svg>
       </button>
       <button
-        className="sm:hidden group-hover:flex items-center justify-center hover:bg-gray-800   h-[30px] w-[30px] p-2 rounded-lg ml-2"
+        className="sm:invisible group-hover:visible flex items-center justify-center hover:bg-gray-800   h-[30px] w-[30px] p-2 rounded-lg ml-2"
         onClick={() => deleteTodo(todo.todoId)}
       >
         <svg
@@ -87,7 +88,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
           aria-hidden="true"
           fill="none"
           stroke="currentColor"
-          strokeWidth={3}
+          strokeWidth={3.5}
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -100,6 +101,7 @@ const Todo = ({ todo }: { todo: Todo }) => {
 
 const Todos = () => {
   const todos = useTodoStore((state) => state.todos);
+  const fetching = useTodoStore((state) => state.fetching);
   const [input, setInput] = useState("");
 
   useEffect(() => {
@@ -112,14 +114,21 @@ const Todos = () => {
   };
 
   return (
-    <div className="flex flex-col bg-black rounded-xl h-full sm:border-zinc-700 sm:border sm:h-[600px] overflow-auto gap-2 p-4 sm:p-8 w-full sm:w-[500px]  ">
-      <div className=" scrollbar-thumb-indigo-400 scrollbar-thin flex flex-col gap-1 overflow-auto">
-        {todos.map((todo) => (
-          <Todo key={todo.todoId} todo={todo} />
-        ))}
-      </div>
+    <div className="flex flex-col sm:bg-black rounded-xl h-full sm:border-zinc-700 sm:border sm:h-[600px] overflow-auto gap-2 p-2 sm:p-8 w-full sm:w-[500px]  ">
+      {fetching ? (
+        <div className="h-full w-full flex flex-col">
+          <Spinner className="m-auto w-8 h-8 text-gray-700 fill-indigo-400" />
+        </div>
+      ) : (
+        <div className=" scrollbar-thumb-indigo-400 scrollbar-thin flex flex-col gap-1 overflow-auto">
+          {todos.map((todo) => (
+            <Todo key={todo.todoId} todo={todo} />
+          ))}
+        </div>
+      )}
       <input
         type="text"
+        placeholder="Add Item"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleCreateTodo()}

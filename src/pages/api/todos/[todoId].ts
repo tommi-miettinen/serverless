@@ -1,13 +1,21 @@
 import axios from "axios";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next/types";
-import { Todo } from "@/types";
+import { getAccessToken } from "../utils/getAccessToken";
 
-const baseUrl = "https://zygoej3i38.execute-api.eu-north-1.amazonaws.com/dev/todos";
+const baseUrl = "https://50c3dyk64c.execute-api.eu-north-1.amazonaws.com/dev/todos";
 
 const deleteTodo: NextApiHandler = async (req, res) => {
   try {
     const { todoId } = req.query;
-    const response = await axios.delete(`${baseUrl}/${todoId}`);
+    const accessToken = getAccessToken(req);
+
+    const headers = {
+      headers: {
+        Authorization: accessToken,
+      },
+    };
+
+    const response = await axios.delete(`${baseUrl}/${todoId}`, headers);
     res.status(200).json(response.data);
   } catch (error: any) {
     console.error("Error creating user:", error);
@@ -19,9 +27,15 @@ const deleteTodo: NextApiHandler = async (req, res) => {
 const updateTodo: NextApiHandler = async (req, res) => {
   try {
     const { todoId } = req.query;
-    const todo: Todo = req.body;
+    const accessToken = getAccessToken(req);
 
-    const response = await axios.patch(`${baseUrl}/${todoId}`, todo);
+    const headers = {
+      headers: {
+        Authorization: accessToken,
+      },
+    };
+
+    const response = await axios.patch(`${baseUrl}/${todoId}`, req.body, headers);
     res.status(200).json(response.data);
   } catch (error: any) {
     console.log(error);

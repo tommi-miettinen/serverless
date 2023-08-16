@@ -18,9 +18,20 @@ export function Google(props: JSX.IntrinsicElements["svg"]) {
   );
 }
 
+const baseURL = "https://prisma.auth.eu-north-1.amazoncognito.com";
+const params =
+  "/oauth2/authorize?identity_provider=Google&redirect_uri=http://localhost:3000/api/auth/callback&response_type=CODE&client_id=5o7brqfj045hijqtko2vhnvfmi&scope=aws.cognito.signin.user.admin email openid profile";
+
+const fullURL = baseURL + params;
+
+const handleClick = () => (window.location.href = fullURL);
+
 const SignWithGoogleButton = () => {
   return (
-    <button className="bg-black border border-gray-700 text-white w-full flex px-5 py-2.5 items-center justify-center rounded-lg gap-2 hover:bg-opacity-80">
+    <button
+      onClick={handleClick}
+      className="bg-black border border-gray-700 text-white w-full flex px-5 py-2.5 items-center justify-center rounded-lg gap-2 hover:bg-opacity-80"
+    >
       <Google className="w-4 h-4" />
       <span>Sign in with Google</span>
     </button>

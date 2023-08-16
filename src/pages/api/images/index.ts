@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextApiRequest, NextApiResponse, PageConfig } from "next";
 import { v4 as uuid } from "uuid";
-import upload from "../../../utils/upload";
+import upload from "../utils/upload";
 import { fromEnv } from "@aws-sdk/credential-provider-env";
 
 const BUCKET_NAME = "prisma-images";

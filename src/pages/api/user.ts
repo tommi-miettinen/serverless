@@ -1,14 +1,11 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { GetUserCommand, UpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 import client from "../../services/cognito";
-import cookie from "cookie";
+import { getAccessToken } from "./utils/getAccessToken";
 
 const getUser: NextApiHandler = async (req, res) => {
   try {
-    const cookies = cookie.parse(req.headers.cookie || "");
-    const accessToken = cookies.accessToken;
-
-    console.log(accessToken);
+    const accessToken = getAccessToken(req);
 
     const getUserCommand = new GetUserCommand({
       AccessToken: accessToken,
@@ -23,11 +20,8 @@ const getUser: NextApiHandler = async (req, res) => {
 };
 
 const updateUser: NextApiHandler = async (req, res) => {
-  console.log(req.body);
   try {
-    const cookies = cookie.parse(req.headers.cookie || "");
-    const accessToken = cookies.accessToken;
-
+    const accessToken = getAccessToken(req);
     const { UserAttributes } = req.body;
 
     const updateUserAttributesCommand = new UpdateUserAttributesCommand({

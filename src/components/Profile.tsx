@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { useUserStore, updateUser, getAvatarUrl } from "@/store/userStore";
+import { useUserStore, updateUser, getName, getAvatarUrl } from "@/store/userStore";
 import Avatar from "@/components/Avatar";
-import ReactCrop, { makeAspectCrop, type Crop } from "react-image-crop";
+import ReactCrop, { type Crop } from "react-image-crop";
 import FileInput from "./FileInput";
 import "react-image-crop/dist/ReactCrop.css";
-import * as Dialog from "@radix-ui/react-dialog";
+import Spinner from "./Spinner";
 
 const getCroppedImg = (imageSrc: HTMLImageElement, crop: Crop): Promise<Blob> => {
   const canvas = document.createElement("canvas");
@@ -31,27 +31,49 @@ const uploadToServer = async (imageFile: File) => {
   const formData = new FormData();
   formData.append("image", imageFile);
 
-  try {
-    const response = await fetch("/api/images", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetch("/api/images", {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to upload image");
-    }
-
-    const responseData = await response.json();
-
-    return responseData;
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  const responseData = await response.json();
+  return responseData;
 };
 
 interface ProfileProps {
   onSave: () => void;
 }
+
+enum SaveState {
+  None = "none",
+  Saving = "saving",
+  Saved = "saved",
+}
+
+const saveLabels: Record<SaveState, JSX.Element> = {
+  [SaveState.None]: <span>Save</span>,
+  [SaveState.Saving]: (
+    <>
+      <span>Saving</span>
+      <Spinner className="font-semibold w-5 h-5 translate-y-[1.5px] text-gray-700 fill-indigo-400" />
+    </>
+  ),
+
+  [SaveState.Saved]: (
+    <>
+      <span>Saved</span>
+      <svg
+        className="duration-200 scale w-5 h-5 translate-y-[1.5px] mr-2 text-indigo-400"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+      </svg>
+    </>
+  ),
+};
 
 const Profile = ({ onSave }: ProfileProps) => {
   const avatarUrl = getAvatarUrl() || "";
@@ -62,6 +84,7 @@ const Profile = ({ onSave }: ProfileProps) => {
   const [croppedImageUrl, setCroppedImageUrl] = useState<string>(avatarUrl);
   const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const [crop, setCrop] = useState<Crop>();
+  const [saveState, setSaveState] = useState<SaveState>(SaveState.None);
 
   const imageRef = useRef<HTMLImageElement>(null);
   const cropContainerRef = useRef<HTMLDivElement>(null);
@@ -74,6 +97,16 @@ const Profile = ({ onSave }: ProfileProps) => {
       return () => URL.revokeObjectURL(url);
     }
   }, [image, imageLoaded]);
+
+  useEffect(() => {
+    if (saveState === SaveState.Saved) {
+      const timeoutId = setTimeout(() => {
+        onSave();
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [saveState, onSave]);
 
   if (!user) return null;
 
@@ -121,17 +154,18 @@ const Profile = ({ onSave }: ProfileProps) => {
   };
 
   const handleSave = async () => {
-    await handleUpload();
-    setTimeout(() => onSave(), 1000);
+    setSaveState(SaveState.Saving);
+    if (croppedImage) await handleUpload();
+    setSaveState(SaveState.Saved);
   };
 
   return (
-    <div className="flex flex-col bg-zinc-950 w-screen sm:w-[500px] text-white p-4 sm:p-8 gap-8">
-      <h3 className="text-2xl font-bold">{user?.Username}</h3>
+    <div className="flex flex-col h-full bg-zinc-950 w-screen sm:w-[500px] text-white py-0 pb-2 px-4 sm:p-8 gap-8">
+      <h3 className="text-2xl font-bold">{getName()}</h3>
       <div className="flex flex-col gap-8 border-gray-700">
         <div className="flex justify-between items-center">
           <FileInput onFileChange={(file) => setImage(file)}>
-            <button className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">Change avatar</button>
+            <button className="hover:bg-opacity-80 rounded-lg px-5 py-2 bg-gray-800">Change avatar</button>
           </FileInput>
           <Avatar imageUrl={croppedImageUrl} className="w-12 h-12 pointer-events-none" />
         </div>
@@ -150,8 +184,8 @@ const Profile = ({ onSave }: ProfileProps) => {
           </div>
         )}
       </div>
-      <button onClick={handleSave} className="rounded-lg px-5 py-1.5 font-semibold bg-gray-800 border border-gray-700">
-        Save
+      <button onClick={handleSave} className="hover:bg-opacity-80 rounded-lg px-5 py-2 bg-gray-800  mt-auto">
+        <span className="flex items-center justify-center gap-2">{saveLabels[saveState]}</span>
       </button>
     </div>
   );

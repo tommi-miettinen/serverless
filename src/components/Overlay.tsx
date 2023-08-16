@@ -29,7 +29,7 @@ const Overlay = ({ open, dismiss, children }: OverlayProps) => {
   return (
     <Dialog.Root open={open}>
       <Dialog.Portal>
-        <Dialog.Overlay onClick={() => dismiss} className="fixed inset-0 w-screen h-screen bg-black/40 grid place-items-center" />
+        <Dialog.Overlay onClick={() => dismiss} className="fixed inset-0 w-screen h-screen grid place-items-center" />
         <Dialog.Content className="fixed inset-0">{children}</Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

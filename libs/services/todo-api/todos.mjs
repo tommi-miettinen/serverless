@@ -2,6 +2,7 @@ import { DynamoDBClient, ScanCommand, PutItemCommand, DeleteItemCommand } from "
 import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
+import { z } from "zod";
 
 const COGNITO_POOL_URL = "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_x7Uj50IG9";
 
@@ -11,6 +12,13 @@ const jwks = jwksClient({
 
 const client = new DynamoDBClient({
   region: "eu-north-1",
+});
+
+const todoSchema = z.object({
+  userId: z.string().min(1, "UserId must be at least one character long."),
+  todoId: z.string().min(1, "TodoId must be at least one character long."),
+  content: z.string().min(1, "Content must be at least one character long."),
+  completed: z.boolean(),
 });
 
 export const auth = async (event) => {
@@ -71,18 +79,41 @@ export const getTodos = async (event) => {
 
 export const createTodo = async (event) => {
   try {
+    const userId = event.requestContext.authorizer.principalId;
     const todo = JSON.parse(event.body);
+    todo.userId = userId;
+
+    const validationResult = todoSchema.safeParse(todo);
+
+    if (!validationResult.success) {
+      const errorDetails = validationResult.error.issues.map((issue) => ({
+        path: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: "Validation failed.",
+          errors: errorDetails,
+        }),
+      };
+    }
+
+    const validTodo = validationResult.data;
+
     const params = {
       TableName: "Todos",
-      Item: marshall(todo),
+      Item: marshall(validTodo),
     };
+
     await client.send(new PutItemCommand(params));
     return {
       statusCode: 201,
-      body: JSON.stringify(todo),
+      body: JSON.stringify(validTodo),
     };
   } catch (error) {
-    console.error(error);
+    console.error(error); // Log the error for debugging
     return {
       statusCode: 500,
       body: "Failed to create Todo",

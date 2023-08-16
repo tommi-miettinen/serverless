@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jsonwebtoken": "^9.0.1",
-    "jwks-rsa": "^3.0.1"
+    "jwks-rsa": "^3.0.1",
+    "zod": "^3.22.0"
   }
 }

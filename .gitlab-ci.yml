@@ -1,0 +1,29 @@
+stages:
+  - lint
+  - test
+  - deploy
+
+lint:
+  stage: lint
+  script:
+    - npm install
+    - npm run lint
+  only:
+    - main
+
+test:
+  stage: test
+  script:
+    - npm install
+    - npm test
+  only:
+    - main
+
+deploy_to_vercel:
+  stage: deploy
+  script:
+    - npm install -g vercel
+    - vercel --token $VERCEL_TOKEN --prod
+  only:
+    - main
+  when: manual

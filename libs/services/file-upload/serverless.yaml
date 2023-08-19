@@ -1,0 +1,45 @@
+service: file-upload
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - Ref: AvatarUploadBucket
+            - "/avatars/*"
+
+functions:
+  uploadToS3:
+    handler: fileUpload.handler
+    events:
+      - http:
+          path: upload
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    AvatarUploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: images
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+              MaxAge: 3000

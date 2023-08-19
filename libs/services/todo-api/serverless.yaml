@@ -1,0 +1,55 @@
+service: todo-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource:
+        - arn:aws:dynamodb:eu-north-1:212750940613:table/Todos
+
+functions:
+  authorize:
+    handler: todos.auth
+
+  getTodos:
+    handler: todos.getTodos
+    events:
+      - http:
+          path: todos
+          method: get
+          cors: true
+          authorizer: authorize
+
+  createTodo:
+    handler: todos.createTodo
+    events:
+      - http:
+          path: todos
+          method: post
+          cors: true
+          authorizer: authorize
+
+  deleteTodo:
+    handler: todos.deleteTodo
+    events:
+      - http:
+          path: todos/{todoId}
+          method: delete
+          cors: true
+          authorizer: authorize
+
+  patchTodo:
+    handler: todos.updateTodo
+    events:
+      - http:
+          path: todos/{todoId}
+          method: patch
+          cors: true
+          authorizer: authorize

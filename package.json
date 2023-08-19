@@ -9,18 +9,44 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.388.0",
+    "@auth0/nextjs-auth0": "^3.1.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.388.0",
+    "@aws-sdk/client-s3": "^3.388.0",
+    "@radix-ui/react-dialog": "^1.0.4",
+    "@radix-ui/react-popover": "^1.0.6",
+    "@react-spring/web": "^9.7.3",
+    "@tailwindcss/forms": "^0.5.4",
     "@types/node": "20.4.9",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.14",
+    "aws-crt": "^1.17.1",
+    "axios": "^1.4.0",
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.5.0",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.13",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.1",
+    "multer": "^1.4.5-lts.1",
     "next": "13.4.13",
     "postcss": "8.4.27",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-image-crop": "^10.1.5",
+    "tailwind-merge": "^1.14.0",
     "tailwindcss": "3.3.3",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "uuid": "^9.0.0",
+    "vaul": "^0.2.3",
+    "zustand": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cookie": "^0.5.1",
+    "@types/js-cookie": "^3.0.3",
+    "@types/multer": "^1.4.7",
+    "@types/uuid": "^9.0.2",
+    "tailwind-scrollbar": "^3.0.5"
   }
 }

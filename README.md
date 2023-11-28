@@ -1,5 +1,10 @@
 # Todolist app
 
+## Technologies
+-AWS
+-Tailwind
+-NextJS
+
 ## Features
 Basic todo app with
 - Authentication
